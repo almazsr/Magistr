@@ -1,0 +1,229 @@
+\documentclass[12pt]{article}
+\usepackage[english, russian]{babel}
+\usepackage{mathtext}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage[a4paper,left=30mm,right=15mm,top=20mm,bottom=30mm,dvips]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[dvips]{graphicx,color}
+\usepackage{psfrag}
+\def\div{\mathop{\rm div}}
+\renewcommand{\log}{\ln}
+\makeatletter
+\renewcommand{\@biblabel}[1]{#1.}
+\makeatother
+\renewcommand{\cot}{\ctg}
+\def\const{\mathop{\rm const}}
+\def\grad{\mathop{\rm grad}}
+\def\Real{\mathop{\rm Re}}
+\def\Imag{\mathop{\rm Im}}
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\arabic{enumi}.}
+\renewcommand{\theenumii}{.\arabic{enumii}}
+\renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}.}
+\renewcommand{\theenumiii}{.\arabic{enumiii}}
+\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}.}
+\renewcommand{\baselinestretch}{1.3}
+\begin{document}
+\large
+%
+% --------------------------------------------------------------- ТИТУЛЬНЫЙ ЛИСТ --------------------------------------------------------
+%
+\thispagestyle{empty}
+\vspace{1cm}
+\begin{center}
+\large
+\textbf{
+Министерство образования и науки Российской Федерации\\[0.5cm]
+КАЗАНСКИЙ (ПРИВОЛЖСКИЙ) ФЕДЕРАЛЬНЫЙ УНИВЕРСИТЕТ\\[0.5cm]}
+ИНСТИТУТ МЕХАНИКИ И МАТЕМАТИКИ\\[0.5cm]
+КАФЕДРА АЭРОГИДРОМЕХАНИКИ\\[1cm]
+\begin{tabular}{cl}
+Специальность: & 010200 — механика\\
+Специализация: & 010205 — механика жидкости, газа и плазмы\\[2cm]
+\end{tabular}
+\textbf{ВЫПУСКНАЯ КВАЛИФИКАЦИОННАЯ РАБОТА}\\
+(Магистрская работа)\\
+\textbf{РЕШЕНИЕ ЗАДАЧИ О ПУЛЬСИРУЮЩЕМ ТЕЧЕНИИ}\\[2cm]
+        \begin{tabular}{lll}
+        Работа завершена: & &\\
+        20 июня 2014 г. \underline{\phantom{Четкая подписьЧеткая подпись}} (А.Р. Сираев) \\
+        Работа допущена к защите: & &\\
+        \begin{tabular}{l}
+        Научный руководитель\\
+        доктор технических наук, профессор
+        \end{tabular} & &\\
+        21 июня 2014 г. \underline{\phantom{Четкая подписьЧеткая подпись}} (Н.И. Михеев) \\
+        \begin{tabular}{l}
+        Заведующий кафедрой\\
+        доктор физ.-мат. наук, профессор
+        \end{tabular} & &\\
+        24 июня 2014 г. \underline{\phantom{Четкая подписьЧеткая подпись}} (А.Г. Егоров) \\
+        \end{tabular}
+\vfill
+        Казань -- 2014
+\end{center}
+
+\newpage
+
+%
+% --------------------------------------------------------------- СОДЕРЖАНИЕ --------------------------------------------------------
+%
+\tableofcontents
+
+\newpage
+\section*{Условные обозначения и сокращения}
+\addcontentsline{toc}{section}{Условные обозначения и сокращения}
+%
+% --------------------------------------------------------------- УСЛОВНЫЕ ОБОЗНАЧЕНИЯ И СОКРАЩЕНИЯ --------------------------------------------------------
+%
+\begin{align*}
+ \textrm{ОКЗА} & - \textrm{обратная краевая задача аэрогидродинамики} \\
+  \textrm{ИНЖ} & - \textrm{идеальная несжимаемая жидкость} \\
+  \textrm{ЭВМ} & - \textrm{электронно-вычислительная машина} \\
+ \textrm{CUDA} & - \textrm{Compute Unified Device Architecture} \\
+ & \textrm{(вычислительная унифицированная архитектура устройств)} \\
+ \textrm{TPL} & - \textrm{Task Parallel Library (библиотека параллельных задач)} \\
+ \textrm{CPU} & - \textrm{Central processing unit (центральное процессорное устройство)} \\
+ \textrm{GPU} & - \textrm{Graphics processing unit (графическое процессорное устройство)} \\
+ \textrm{GPGPU} & - \textrm{General-purpose graphics processing
+ units (GPU общего назначения)} \\
+ \textrm{API} & - \textrm{Application program interface}\\&  \textrm{(интерфейс прикладного программирования)} \\
+ \textrm{.NET} & - \textrm{.NET Framework (программная платформа от
+ Microsoft)} \\
+ \textrm{PLINQ} & - \textrm{Parallel for Language Integrated Query }\\&  \textrm{(параллельность для интегрированного языка
+ запросов)} \\
+  M & - \textrm{исходное количество узлов на профиле} \\
+  N & - \textrm{количество узлов на единичной окружности в канонической}\\&  \textrm{плоскости -- искомое число узлов на
+  профиле} \\
+\end{align*}
+
+\newpage
+%
+% --------------------------------------------------------------- ВВЕДЕНИЕ --------------------------------------------------------
+%
+\section{Введение}
+\newpage
+\section{Постановка задачи}
+Рассматривается нестационарное ламинарное течение вязкой несжимаемой жидкости по цилиндрической трубе круглого сечения радиуса $r_0$ и длины $x_0$ с заданным законом изменения перепада давления.
+
+Требуется:
+\begin{enumerate}
+\item получить уравнения для пульсирующего ламинарного течения в круглой цилиндрической трубе в безразмерной форме;
+\item получить численное решение полученных уравнений;
+\item найти распределение скорости по радиусу трубы;
+\item вычислить среднерасходную скорость, кинетическую энергию по периоду;
+\item проанализировать полученные результаты, сделать выводы.
+\end{enumerate}
+\newpage
+\section{Решение задачи}
+\subsection{Уравнение нестационарного ламинарного движения вязкой жидкости в цилиндрической трубе круглого сечения}
+Исходные уравнения были получены из уравнений Стокса:
+\begin{equation}
+\label{stocks_eq}
+\begin{cases}
+\cfrac{\partial u}{\partial t}+u\cfrac{\partial u}{\partial x}+v\cfrac{\partial u}{\partial y}+w\cfrac{\partial u}{\partial z}=F_x-\cfrac{1}{\rho}\cfrac{\partial p}{\partial x}+\nu\nabla^2u,\\
+\cfrac{\partial v}{\partial t}+u\cfrac{\partial v}{\partial x}+v\cfrac{\partial v}{\partial y}+w\cfrac{\partial v}{\partial z}=F_y-\cfrac{1}{\rho}\cfrac{\partial p}{\partial y}+\nu\nabla^2v,\\
+\cfrac{\partial w}{\partial t}+u\cfrac{\partial w}{\partial x}+v\cfrac{\partial w}{\partial y}+w\cfrac{\partial w}{\partial z}=F_z-\cfrac{1}{\rho}\cfrac{\partial p}{\partial z}+\nu\nabla^2w\\
+\cfrac{\partial u}{\partial x}+\cfrac{\partial v}{\partial y}+\cfrac{\partial w}{\partial z}=0.
+\end{cases}
+\end{equation}
+В рамках данной задачи ось трубы совпадает с осью $x$: $v=w=0$, объемные силы отсутствуют: $F_x=F_y=F_z=0$. При учете уравнения неразрывности получено, что $\cfrac{\partial u}{\partial x}=0$. Третье уравнение из системы уравнения Стокса примет вид
+\begin{equation}
+\label{tube_eq}
+\cfrac{\partial u}{\partial t}-\nu\nabla^2u=-\cfrac{1}{\rho}\cfrac{\partial p}{\partial x}.
+\end{equation}
+Левая часть уравнения зависит только от $y$, $z$ и $t$.
+При этом, из первых двух уравнений \eqref{stocks_eq} следует, что $\cfrac{\partial p}{\partial y}=\cfrac{\partial p}{\partial z}=0$
+Таким образом, правая часть уравнения не зависит от $y$ и $z$. Это означает, что $\cfrac{\partial p}{\partial x}$ является функцией зависящей только от времени
+\begin{equation}
+\label{pres_grad_eq}
+-\cfrac{\partial p}{\partial x}=\rho f(t).
+\end{equation}
+При переходе в цилиндрическую систему координат и подстановке в уравнение  \eqref{tube_eq} выражения для градиента давления \eqref{pres_grad_eq} получено уравнение нестационарного ламинарного движения вязкой жидкости в цилиндрической трубе круглого сечения
+\begin{equation}
+\label{tube_cylindric_eq}
+\cfrac{\partial u}{\partial t}-\nu\left(\cfrac{\partial^2u}{\partial r^2}+\cfrac{1}{r}\cfrac{\partial u}{\partial r}\right)=f(t)
+\end{equation}
+\subsection{Переход к безразмерной форме}
+Закон изменения перепада давления задан следующим образом:
+\begin{equation}
+\label{pres_grad_explicit_form}
+\cfrac{\partial p}{\partial x}=\rho \left(A\cos\omega t+\cfrac{\Delta p}{\rho x_0}\right)
+\end{equation}
+Связь между размерными и безразмерными переменными:
+\begin{equation}
+\begin{array}{lllllllll}
+t=t_0\bar{t},&
+u=u_0 \bar{u},&
+r=r_0 \bar{r},&
+x=x_0 \bar{x}
+\end{array}
+\end{equation}
+Выбраны следующие масштабы:
+\begin{equation}
+\label{mashtabi} 
+\begin{array}{lllll}
+t_0=\cfrac{1}{\omega}&,&
+u_0=\sqrt{\cfrac{\Delta p}{\rho}}&,&
+u'=\sqrt{\strut{A r_0}}
+\end{array}
+\end{equation}
+После подстановки \eqref{pres_grad_explicit_form} и введеных масштабов \eqref{mashtabi} уравнение \eqref{tube_cylindric_eq} примет вид
+\begin{equation}
+\omega u_0\cfrac{\partial \bar{u}}{\partial \bar{t}}-\nu \cfrac{u_0}{r_0^2}\left(\cfrac{\partial^2\bar{u}}{\partial \bar{r}^2}+\cfrac{1}{\bar{r}}\cfrac{\partial \bar{u}}{\partial \bar{r}}\right)=\cfrac{u'^2}{r_0}\cos\bar{t}+\cfrac{u_0^2}{x_0}
+\end{equation}
+Обе части уравнения умножены на $\cfrac{r_0^2}{\nu u_0}$ (черта над безразмерными переменными опущена)
+\begin{equation}
+\label{bezrazmer_eq_vivod}
+\omega \cfrac{r_0^2}{\nu}\cfrac{\partial u}{\partial t}-\left(\cfrac{\partial^2u}{\partial r^2}+\cfrac{1}{r}\cfrac{\partial u}{\partial r}\right)=\cfrac{u_0 r_0 u'^2}{\nu u_0^2}\cos t+\cfrac{u_0 r_0^2}{\nu x_0}
+\end{equation}
+После введения безразмерных комплексов
+\begin{equation*}
+\begin{array}{lllllll}
+s=r_0\sqrt{\cfrac{\omega}{\nu}}&,&
+Re=\cfrac{u_0 r_0}{\nu}&,&
+\beta=\cfrac{u'}{u_0}&,&
+\varepsilon=\cfrac{r_0}{x_0}
+\end{array}
+\end{equation*}
+уравнение \eqref{bezrazmer_eq_vivod} примет окончательный вид в безразмерной форме:
+\begin{equation}
+\label{bezrazmer_eq}
+s^2\cfrac{\partial u}{\partial t}-\left(\cfrac{\partial^2u}{\partial r^2}+\cfrac{1}{r}\cfrac{\partial u}{\partial r}\right)=Re\left(\beta^2\cos t+\varepsilon\right).
+\end{equation}
+Также, удобным для расчетов будет другой вид уравнения \eqref{bezrazmer_eq}, в котором используются комплексы
+\begin{equation*}
+\begin{array}{lllllll}
+H_1=s^2&,&
+H_2=Re\beta^2&,&
+H_3=Re\varepsilon&,&
+\end{array}
+\end{equation*}
+которые полностью определяют решение. 
+Тогда
+\begin{equation}
+\label{bezrazmer_eq_withH}
+H_1\cfrac{\partial u}{\partial t}-\left(\cfrac{\partial^2u}{\partial r^2}+\cfrac{1}{r}\cfrac{\partial u}{\partial r}\right)=H_2\cos t+H_3.
+\end{equation}
+\subsection{Точное решение в случае осцилирующего ламинарного течения}
+\newpage
+\section{Примененные алгоритмы при решении задачи}
+\subsection{Формулы для вычисления функций Бесселя}
+\subsection{Разностные схемы для уравнения диффузии в цилиндрических координатах}
+\subsection{Сравнение результатов точного и численного решения}
+\subsection{Зависимость сходимости по периоду от численной схемы}
+\subsection{Выбор разностной схемы для проведения анализа решения}
+\newpage
+\section{Анализ полученного решения}
+\subsection{Зависимость профиля скорости от варьируемых комплексов}
+\subsection{Крайние случаи}
+\subsection{Анализ среднерасходной скорости}
+\newpage
+\section{Заключение}
+\section{Список использованной литературы}
+%
+% --------------------------------------------------------------- ВВЕДЕНИЕ --------------------------------------------------------
+%
+\end{document}

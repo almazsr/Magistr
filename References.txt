@@ -1,0 +1,3 @@
+Слёзкин Н.А. Динамика вязкой несжимаемой жидкости.
+American Mathematica Society "Bessel Functions for Large Arguments"
+By M. Goldstein and R. M. Thaler.

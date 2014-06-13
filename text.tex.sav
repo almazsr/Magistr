@@ -1,0 +1,167 @@
+\documentclass[12pt]{article}
+\usepackage[english, russian]{babel}
+\usepackage{mathtext}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage[a4paper,left=30mm,right=15mm,top=20mm,bottom=30mm,dvips]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[dvips]{graphicx,color}
+\usepackage{psfrag}
+\def\div{\mathop{\rm div}}
+\renewcommand{\log}{\ln}
+\makeatletter
+\renewcommand{\@biblabel}[1]{#1.}
+\makeatother
+\renewcommand{\cot}{\ctg}
+\def\const{\mathop{\rm const}}
+\def\grad{\mathop{\rm grad}}
+\def\Real{\mathop{\rm Re}}
+\def\Imag{\mathop{\rm Im}}
+\renewcommand{\theenumi}{\arabic{enumi}}
+\renewcommand{\labelenumi}{\arabic{enumi}.}
+\renewcommand{\theenumii}{.\arabic{enumii}}
+\renewcommand{\labelenumii}{\arabic{enumi}.\arabic{enumii}.}
+\renewcommand{\theenumiii}{.\arabic{enumiii}}
+\renewcommand{\labelenumiii}{\arabic{enumi}.\arabic{enumii}.\arabic{enumiii}.}
+\renewcommand{\baselinestretch}{1.3}
+\begin{document}
+\large
+%
+% --------------------------------------------------------------- ТИТУЛЬНЫЙ ЛИСТ --------------------------------------------------------
+%
+\thispagestyle{empty}
+\vspace{1cm}
+\begin{center}
+\large
+\textbf{
+Министерство образования и науки Российской Федерации\\[0.5cm]
+КАЗАНСКИЙ (ПРИВОЛЖСКИЙ) ФЕДЕРАЛЬНЫЙ УНИВЕРСИТЕТ\\[0.5cm]}
+ИНСТИТУТ МЕХАНИКИ И МАТЕМАТИКИ\\[0.5cm]
+КАФЕДРА АЭРОГИДРОМЕХАНИКИ\\[1cm]
+\begin{tabular}{cl}
+Специальность: & 010200 — механика\\
+Специализация: & 010205 — механика жидкости, газа и плазмы\\[2cm]
+\end{tabular}
+\textbf{ВЫПУСКНАЯ КВАЛИФИКАЦИОННАЯ РАБОТА}\\
+(Магистрская работа)\\
+\textbf{РЕШЕНИЕ ЗАДАЧИ О ПУЛЬСИРУЮЩЕМ ТЕЧЕНИИ}\\[2cm]
+        \begin{tabular}{lll}
+        Работа завершена: & &\\
+        20 июня 2014 г. \underline{\phantom{Четкая подписьЧеткая подпись}} (А.Р. Сираев) \\
+        Работа допущена к защите: & &\\
+        \begin{tabular}{l}
+        Научный руководитель\\
+        доктор технических наук, профессор
+        \end{tabular} & &\\
+        21 июня 2014 г. \underline{\phantom{Четкая подписьЧеткая подпись}} (Н.И. Михеев) \\
+        \begin{tabular}{l}
+        Заведующий кафедрой\\
+        доктор физ.-мат. наук, профессор
+        \end{tabular} & &\\
+        24 июня 2014 г. \underline{\phantom{Четкая подписьЧеткая подпись}} (А.Г. Егоров) \\
+        \end{tabular}
+\vfill
+        Казань -- 2014
+\end{center}
+
+\newpage
+
+%
+% --------------------------------------------------------------- СОДЕРЖАНИЕ --------------------------------------------------------
+%
+\tableofcontents
+
+\newpage
+\section*{Условные обозначения и сокращения}
+\addcontentsline{toc}{section}{Условные обозначения и сокращения}
+%
+% --------------------------------------------------------------- УСЛОВНЫЕ ОБОЗНАЧЕНИЯ И СОКРАЩЕНИЯ --------------------------------------------------------
+%
+\begin{align*}
+ \textrm{ОКЗА} & - \textrm{обратная краевая задача аэрогидродинамики} \\
+  \textrm{ИНЖ} & - \textrm{идеальная несжимаемая жидкость} \\
+  \textrm{ЭВМ} & - \textrm{электронно-вычислительная машина} \\
+ \textrm{CUDA} & - \textrm{Compute Unified Device Architecture} \\
+ & \textrm{(вычислительная унифицированная архитектура устройств)} \\
+ \textrm{TPL} & - \textrm{Task Parallel Library (библиотека параллельных задач)} \\
+ \textrm{CPU} & - \textrm{Central processing unit (центральное процессорное устройство)} \\
+ \textrm{GPU} & - \textrm{Graphics processing unit (графическое процессорное устройство)} \\
+ \textrm{GPGPU} & - \textrm{General-purpose graphics processing
+ units (GPU общего назначения)} \\
+ \textrm{API} & - \textrm{Application program interface}\\&  \textrm{(интерфейс прикладного программирования)} \\
+ \textrm{.NET} & - \textrm{.NET Framework (программная платформа от
+ Microsoft)} \\
+ \textrm{PLINQ} & - \textrm{Parallel for Language Integrated Query }\\&  \textrm{(параллельность для интегрированного языка
+ запросов)} \\
+  M & - \textrm{исходное количество узлов на профиле} \\
+  N & - \textrm{количество узлов на единичной окружности в канонической}\\&  \textrm{плоскости -- искомое число узлов на
+  профиле} \\
+\end{align*}
+
+\newpage
+%
+% --------------------------------------------------------------- ВВЕДЕНИЕ --------------------------------------------------------
+%
+\section{Введение}
+\newpage
+\section{Постановка задачи}
+Рассматривается нестационарное ламинарное течение вязкой несжимаемой жидкости по цилиндрической трубе круглого сечения радиуса $r_0$ и длины $x_0$ с заданным перепадом давления $\delta p$.
+Требуется найти распределение скорости по радиусу трубы 
+\subsection{Уравнение нестационарного ламинарного движения вязкой жидкости в цилиндрической трубе круглого сечения}
+Рассматривается нестационарное ламинарное течение вязкой несжимаемой жидкости по цилиндрической трубе круглого сечения с заданным перепадом давления.
+Исходные уравнения были получены из уравнений Стокса:
+\begin{equation}
+\label{stocks_eq}
+\begin{cases}
+\cfrac{\partial u}{\partial t}+u\cfrac{\partial u}{\partial x}+v\cfrac{\partial u}{\partial y}+w\cfrac{\partial u}{\partial z}=F_x-\cfrac{1}{\rho}\cfrac{\partial p}{\partial x}+\nu\nabla^2u,\\
+\cfrac{\partial v}{\partial t}+u\cfrac{\partial v}{\partial x}+v\cfrac{\partial v}{\partial y}+w\cfrac{\partial v}{\partial z}=F_y-\cfrac{1}{\rho}\cfrac{\partial p}{\partial y}+\nu\nabla^2v,\\
+\cfrac{\partial w}{\partial t}+u\cfrac{\partial w}{\partial x}+v\cfrac{\partial w}{\partial y}+w\cfrac{\partial w}{\partial z}=F_z-\cfrac{1}{\rho}\cfrac{\partial p}{\partial z}+\nu\nabla^2w\\
+\cfrac{\partial u}{\partial x}+\cfrac{\partial v}{\partial y}+\cfrac{\partial w}{\partial z}=0.
+\end{cases}
+\end{equation}
+В рамках данной задачи ось трубы совпадает с осью $x$: $v=w=0$, объемные силы отсутствуют: $F_x=F_y=F_z=0$. При учете уравнения неразрывности получено, что $\cfrac{\partial u}{\partial x}=0$. Третье уравнение из системы уравнения Стокса примет вид
+\begin{equation}
+\label{tube_eq}
+\cfrac{\partial u}{\partial t}-\nu\nabla^2u=-\cfrac{1}{\rho}\cfrac{\partial p}{\partial x}.
+\end{equation}
+Левая часть уравнения зависит только от $y$, $z$ и $t$.
+При этом, из первых двух уравнений \eqref{stocks_eq} следует, что $\cfrac{\partial p}{\partial y}=\cfrac{\partial p}{\partial z}=0$
+Таким образом, правая часть уравнения не зависит от $y$ и $z$. Это означает, что $\cfrac{\partial p}{\partial x}$ является функцией зависящей только от времени
+\begin{equation}
+\label{pres_grad_eq}
+-\cfrac{1}{\rho}\cfrac{\partial p}{\partial x}=f(t).
+\end{equation}
+При переходе в цилиндрическую систему координат и подстановке в уравнение  \eqref{tube_eq} выражения для градиента давления \eqref{pres_grad_eq} получено уравнение нестационарного ламинарного движения вязкой жидкости в цилиндрической трубе круглого сечения
+\begin{equation}
+\cfrac{\partial u}{\partial t}-\nu\left(\cfrac{\partial^2u}{\partial r^2}+\cfrac{1}{r}\cfrac{\partial u}{\partial r}\right)=f(t)
+\end{equation}
+\newpage
+\section{Решение задачи}
+\subsection{Вывод безразмерных уравнений для пульсирующего ламинарного течения}
+\subsection{Точное решение в случае осцилирующего ламинарного течения}
+\subsection{Вычисление среднерасходной скорости}
+\newpage
+\section{Примененные методы при решении задачи}
+\subsection{Формулы для вычисления функций Бесселя}
+\subsection{Разностные схемы для уравнения диффузии в цилиндрических координатах}
+\subsection{Сравнение результатов точного и численного решения}
+\subsection{Зависимость сходимости по периоду от численной схемы}
+\subsection{Выбор разностной схемы для проведения анализа решения}
+\newpage
+\section{Выбор и обоснование использованных технологий программирования.}
+\subsection{Выбор платформы разработки и языка программирования}
+\subsection{Выбор хранилища данных}
+\subsection{Выбор технологии для отображения данных}
+\newpage
+\section{Анализ полученного решения}
+\subsection{Зависимость профиля скорости от варьируемых комплексов}
+\subsection{Крайние случаи}
+\subsection{Анализ среднерасходной скорости}
+\newpage
+\section{Заключение}
+\section{Список использованной литературы}
+%
+% --------------------------------------------------------------- ВВЕДЕНИЕ --------------------------------------------------------
+%
+\end{document}
